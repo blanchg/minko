@@ -182,6 +182,8 @@ package aerys.minko.render.resource.texture
 					_format,
 					_bitmapData == null && _atf == null
 				);
+
+				context.disposed.add(contextDisposed);
 			}
 
 			if (_update)
@@ -190,8 +192,8 @@ package aerys.minko.render.resource.texture
 				uploadBitmapDataWithMipMaps();
 			}
 
-			_atf = null;
-			_bitmapData = null;
+//			_atf = null;
+//			_bitmapData = null;
 			
 			return _texture;
 		}
@@ -228,7 +230,7 @@ package aerys.minko.render.resource.texture
 					_texture.uploadFromBitmapData(_bitmapData, 0);
 				}
 				
-				_bitmapData.dispose();
+//				_bitmapData.dispose();
 			}
 			else if (_atf)
 			{
@@ -237,6 +239,16 @@ package aerys.minko.render.resource.texture
 			}
 		}
 		
+		private function contextDisposed(context:Context3DResource):void
+		{
+			if (_texture)
+			{
+				_texture.dispose();
+				_texture = null;
+			}
+			_update = true;
+		}
+
 		public function dispose() : void
 		{
 			if (_texture)
@@ -244,6 +256,12 @@ package aerys.minko.render.resource.texture
 				_texture.dispose();
 				_texture = null;
 			}
+			if (_bitmapData)
+			{
+				_bitmapData.dispose();
+				_bitmapData = null;
+			}
+			_atf = null;
 		}
 	}
 }

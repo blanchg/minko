@@ -88,17 +88,26 @@ package aerys.minko.render.resource
 			if (!_nativeProgram)
 			{
 				_nativeProgram = context.createProgram();
+				context.disposed.add(contextDisposed);
 				_nativeProgram.upload(_vsProgram, _fsProgram);
 			}
 			
 			if (previous !== this)
 				context.setProgram(_nativeProgram);
 		}
+
+		private function contextDisposed(context:Context3DResource):void
+		{
+			dispose();
+		}
 		
 		public function dispose() : void
 		{
 			if (_nativeProgram)
+			{
 				_nativeProgram.dispose();
+				_nativeProgram = null;
+			}
 		}
 	}
 }

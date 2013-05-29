@@ -72,6 +72,7 @@ package aerys.minko.render.resource
 					_numVertices,
 					_stream.format.numBytesPerVertex >>> 2
 				);
+				context.disposed.add(contextDisposed);
 				
 				update = true;
 			}
@@ -88,6 +89,16 @@ package aerys.minko.render.resource
 			}
 
 			return _vertexBuffer;
+		}
+
+		private function contextDisposed(context:Context3DResource):void
+		{
+			if (_vertexBuffer)
+			{
+				_vertexBuffer.dispose();
+				_vertexBuffer = null;
+				_lengthChanged = true;
+			}
 		}
 
 		public function dispose() : void

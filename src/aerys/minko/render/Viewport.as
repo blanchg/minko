@@ -12,11 +12,13 @@ package aerys.minko.render
 	import flash.events.Event;
 	import flash.geom.Point;
 	
+	import aerys.minko.Minko;
 	import aerys.minko.ns.minko_render;
 	import aerys.minko.render.resource.Context3DResource;
 	import aerys.minko.type.KeyboardManager;
 	import aerys.minko.type.MouseManager;
 	import aerys.minko.type.Signal;
+	import aerys.minko.type.log.DebugLevel;
 
 	/**
 	 * The Viewport is the display area where a 3D scene can be rendered.
@@ -47,6 +49,7 @@ package aerys.minko.render
 		private var _keyboardManager	: KeyboardManager	= new KeyboardManager();
 		
 		private var _resized			: Signal			= new Signal('Viewport.resized');
+		private var _reloaded			: Signal			= new Signal('Viewport.reloaded');
 		
 		minko_render function get context3D() : Context3DResource
 		{
@@ -157,6 +160,15 @@ package aerys.minko.render
 			return _resized;
 		}
 		
+		/**
+		 * The signal executed when a new Context3D has been created and
+		 * the previous Context3D is no longer valid
+		 */
+		public function get reloaded() : Signal
+		{
+			return _reloaded;
+		}
+
 		/**
 		 * The background color of the display area. This value must use the
 		 * RGB format.
@@ -339,8 +351,23 @@ package aerys.minko.render
 		
 		private function context3dCreatedHandler(event : Event) : void
 		{
-			_context3d = new Context3DResource(_stage3d.context3D);
+			var oldContext:Context3DResource = _context3d;
 			
+			_context3d = new Context3DResource(_stage3d.context3D);
+			if (oldContext)
+			{
+				Minko.log(DebugLevel.CONTEXT, "Old context destroyed and no longer valid");
+				oldContext.dispose();
+			}
+			if (_context3d)
+			{
+				Minko.log(DebugLevel.CONTEXT, "New context created");
+			}
+			if (oldContext)
+			{
+				oldContext = null;
+				_reloaded.execute();
+			}
 			updateStage3D();
 			updateBackBuffer();
 			

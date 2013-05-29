@@ -103,7 +103,10 @@ package aerys.minko.render.resource.texture
 		public function getTexture(context : Context3DResource) : TextureBase
 		{
 			if (!_resource)
+			{
 				_resource = context.createCubeTexture(_size, Context3DTextureFormat.BGRA, true);
+				context.disposed.add(contextDisposed);
+			}
 			
 			if (_bitmapDatas != null)
 			{
@@ -129,7 +132,8 @@ package aerys.minko.render.resource.texture
     						
     						tmpBitmapData.draw(bitmapData, tmpMatrix);
     						_resource.uploadFromBitmapData(tmpBitmapData, side, mipmapId);
-    						
+							tmpBitmapData.dispose();
+
     						++mipmapId;
     						mySize /= 2;
     					}
@@ -145,10 +149,18 @@ package aerys.minko.render.resource.texture
 			return _resource;
 		}
 		
+		private function contextDisposed(context:Context3DResource):void
+		{
+			dispose();
+		}
+
 		public function dispose() : void
 		{
 			if (_resource)
+			{
 				_resource.dispose();
+				_resource = null;
+			}
 		}
 	}
 }

@@ -1,5 +1,8 @@
 package aerys.minko.render.resource
 {
+	import aerys.minko.ns.minko_render;
+	import aerys.minko.type.Signal;
+
 	import flash.display.BitmapData;
 	import flash.display3D.Context3D;
 	import flash.display3D.IndexBuffer3D;
@@ -53,6 +56,13 @@ package aerys.minko.render.resource
         private var _stencilActionOnDepthFail               : String;
         private var _stencilActionOnDepthPassStencilFail    : String;
 		
+		private var _disposed								: Signal = new Signal("Context3DResource.disposed");
+
+		public function get disposed() : Signal
+		{
+			return _disposed;
+		}
+
 		public function get context() : Context3D
 		{
 			return _context;
@@ -139,6 +149,8 @@ package aerys.minko.render.resource
 		
 		public function dispose() : void
 		{
+			_disposed.execute(this);
+			_disposed = null;
 			_context.dispose();
 		}
 		

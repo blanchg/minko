@@ -58,6 +58,7 @@ package aerys.minko.render.resource
 					_indexBuffer.dispose();
 				update = true;
 				_indexBuffer = context.createIndexBuffer(_stream.length);
+				context.disposed.add(contextDisposed);
 			}
 
 			if (update)
@@ -72,6 +73,15 @@ package aerys.minko.render.resource
 			}
 
 			return _indexBuffer;
+		}
+
+		private function contextDisposed(context:Context3DResource):void
+		{
+			if (_indexBuffer)
+			{
+				_indexBuffer.dispose();
+				_indexBuffer = null;
+			}
 		}
 
 		public function dispose() : void
