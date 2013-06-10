@@ -7,6 +7,7 @@ package aerys.minko.scene.controller.animation
 
         function addLabel(name : String, time : Number) : IAnimationController;
         function removeLabel(name : String) : IAnimationController;
+		function hasLabel(name : String) : Boolean;
 
         function seek(time : Object) : IAnimationController;
 
@@ -20,5 +21,10 @@ package aerys.minko.scene.controller.animation
         function getLabelName(index : uint) : String;
 
         function getLabelTime(index : uint) : Number;
+		
+		function getLabelTimeByName(name : String) : Number;
+		
+		function setTimeForLabel(name : String, newTime : Number) : IAnimationController;
+		function changeLabel(oldName : String, newName : String) : IAnimationController;
     }
 }

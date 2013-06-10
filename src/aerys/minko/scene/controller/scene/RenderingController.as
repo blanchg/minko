@@ -1,5 +1,9 @@
 package aerys.minko.scene.controller.scene
 {
+	import flash.display.BitmapData;
+	import flash.utils.Dictionary;
+	import flash.utils.getTimer;
+	
 	import aerys.minko.Minko;
 	import aerys.minko.ns.minko_render;
 	import aerys.minko.render.DrawCall;
@@ -28,9 +32,6 @@ package aerys.minko.scene.controller.scene
 	import aerys.minko.type.enum.DataProviderUsage;
 	import aerys.minko.type.enum.FrustumCulling;
 	import aerys.minko.type.log.DebugLevel;
-	
-	import flash.display.BitmapData;
-	import flash.utils.Dictionary;
 	
 	/**
 	 * The RenderingController works on the scene to issue all the related
@@ -189,6 +190,9 @@ package aerys.minko.scene.controller.scene
 					_postProcessingScene.bindings.addProvider(
 						_postProcessingProperties
 					);
+					
+					_postProcessingScene.beforePresent.add(postProcessingSceneBeforePresentHandler);
+					_postProcessingScene.afterPresent.add(postProcessingSceneAfterPresentHandler);
 				}
 				else
 				{
@@ -197,6 +201,16 @@ package aerys.minko.scene.controller.scene
 					screen.material.effect = _postProcessingEffect;
 				}
 			}
+		}
+		
+		private function postProcessingSceneBeforePresentHandler(scene : Scene, viewport : Viewport, destination : BitmapData, time : uint) : void
+		{
+			_scene.beforePresent.execute(scene, viewport, destination, time);
+		}
+		
+		private function postProcessingSceneAfterPresentHandler(scene : Scene, viewport : Viewport, destination : BitmapData, time : uint) : void
+		{
+			_scene.afterPresent.execute(scene, viewport, destination, time);
 		}
 		
 		private function getRenderingBackBuffer(backBuffer : RenderTarget) : RenderTarget
@@ -324,13 +338,14 @@ package aerys.minko.scene.controller.scene
 			if (numTriangles == 0)
 			{
 				var color : uint = backBuffer.backgroundColor;
-				
+				_scene.beforeClear.execute(_scene, viewport, destination, getTimer());
 				context.clear(
 					(color >>> 24) / 255.,
 					((color >> 16) & 0xff) / 255.,
 					((color >> 8) & 0xff) / 255.,
 					(color & 0xff) / 255.
 				);
+				_scene.afterClear.execute(_scene, viewport, destination, getTimer());
 			}
 			
 			// present
@@ -341,7 +356,11 @@ package aerys.minko.scene.controller.scene
 				if (destination)
 					context.drawToBitmapData(destination);
 				else
+				{
+					_scene.beforePresent.execute(_scene, viewport, destination, getTimer());
 					context.present();
+					_scene.afterPresent.execute(_scene, viewport, destination, getTimer());
+				}
 			}
 			
 			return numTriangles;
@@ -464,7 +483,7 @@ package aerys.minko.scene.controller.scene
             if (!effect)
                 return ;
             
-			deleteDrawCalls(mesh, material.effect);
+			deleteDrawCalls(mesh, effect);
 		}
 		
 		private function effectInstancePassesChangedHandler(effectInstance : EffectInstance) : void
@@ -627,12 +646,11 @@ package aerys.minko.scene.controller.scene
     				unbindShaderInstance(passInstance, drawCall, meshBindings);
     			}
     			_numDrawCalls -= numDrawCalls;
-                
                 delete _meshToEffectInstance[mesh];
                 delete _meshBindingsUsageCount[meshBindings];
                 delete _meshToDrawCalls[mesh];
-                
-                // update effect instances list and mesh to effect instance indexes
+
+				// update effect instances list and mesh to effect instance indexes
                 var meshesWithSameEffectInstance : Vector.<Mesh> = _effectInstanceToMeshes[effectInstance];
                 
                 meshesWithSameEffectInstance.splice(meshesWithSameEffectInstance.indexOf(mesh), 1);

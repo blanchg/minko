@@ -139,7 +139,7 @@ package aerys.minko.scene.controller.mesh
 		
 		private function addedHandler(mesh : Mesh, ancestor : Group) : void
 		{
-			var scene : Scene = mesh.scene;
+			var scene : Scene = ancestor.scene;
 			
 			if (!scene)
 				return ;
@@ -170,7 +170,7 @@ package aerys.minko.scene.controller.mesh
 			
 			if (!scene)
 				return ;
-            
+
             if (scene.renderingBegin.hasCallback(sceneRenderingBeginHandler))
                 scene.renderingBegin.remove(sceneRenderingBeginHandler);
             
@@ -180,8 +180,8 @@ package aerys.minko.scene.controller.mesh
                 && mesh.localToWorldTransformChanged.hasCallback(meshLocalToWorldChangedHandler))
 				mesh.localToWorldTransformChanged.remove(meshLocalToWorldChangedHandler);
 
-			mesh.computedVisibilityChanged.remove(computedVisiblityChangedHandler);
-            mesh.bindings.removeProvider(_data);
+				mesh.computedVisibilityChanged.remove(computedVisiblityChangedHandler);
+            	mesh.bindings.removeProvider(_data);
 		}
 		
         private function computedVisiblityChangedHandler(node               : ISceneNode,
@@ -227,7 +227,7 @@ package aerys.minko.scene.controller.mesh
 		{
 			var culling	: uint	= _frustumCulling;
 			
-			if (_mesh && _mesh.geometry && _mesh.geometry.boundingBox && _mesh.visible)
+			if (_mesh && _mesh.geometry && _mesh.geometry.boundingBox && _mesh.visible && _mesh.root is Scene)
 			{
 				var camera : AbstractCamera = (_mesh.root as Scene).activeCamera;
 				
