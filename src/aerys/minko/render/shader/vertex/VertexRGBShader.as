@@ -14,7 +14,7 @@ package aerys.minko.render.shader.vertex
 		
 		override protected function getPixelColor() : SFloat
 		{
-			return float4(interpolate(vertexRGBColor), 1);
+			return interpolate(vertexRGBColor);
 		}
 	}
 }

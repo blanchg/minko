@@ -12,3 +12,4 @@ bin-release/
 build/
 html-template/
 doc/
+target/
