@@ -1,0 +1,456 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.minko</groupId>
+    <artifactId>minko</artifactId>
+    <packaging>swc</packaging>
+    <version>2.0-SNAPSHOT</version>
+    <name>Minko 3D Framework</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <flexmojos.version>4.2-beta</flexmojos.version>
+        <flex.sdk.version>4.5.1.21328</flex.sdk.version>
+        <!-- See http://www.bytearray.org/?p=4848 to work out what this should be! -->
+        <!--
+            Automation SATS-68:
+            11 works with 10.2 and 11.4
+            13 works with 10.2 and 11.4
+            14 works with 10.2 and 11.4
+            15 doesn't
+            16 doesn't
+            17 doesn't
+        -->
+        <flex.swf.version>14</flex.swf.version>
+        <flex.player.version.major>11</flex.player.version.major>
+        <flex.player.version.minor>4</flex.player.version.minor>
+    </properties>
+    <prerequisites>
+      <maven>3.0.3</maven>
+    </prerequisites>
+
+    <distributionManagement>
+        <repository>
+            <id>connectedworksite-maven-repo</id>
+            <name>connectedworksite-maven-repo-releases</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-releases-local</url>
+        </repository>
+        <snapshotRepository>
+            <id>connectedworksite-maven-repo</id>
+            <name>connectedworksite-maven-repo-snapshots</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-snapshots-local</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>libs-releases</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-releases</url>
+        </repository>
+        <repository>
+            <snapshots />
+            <id>snapshots</id>
+            <name>libs-snapshots</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-snapshots</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <id>central</id>
+            <name>plugins-releases</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/plugins-releases</url>
+        </pluginRepository>
+        <pluginRepository>
+            <snapshots />
+            <id>snapshots</id>
+            <name>plugins-snapshots</name>
+            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/plugins-snapshots</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- Flex SDK dependencies -->
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>flex-framework</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>pom</type>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.adobe.flex.framework</groupId>
+                        <artifactId>playerglobal</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>playerglobal</artifactId>
+                <version>${flex.sdk.version}</version>
+                <classifier>${flex.player.version.major}.${flex.player.version.minor}</classifier>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>framework</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>flash-integration</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>internal</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>rpc</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>mx</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>spark</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>spark</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>theme</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>sparkskins</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>com.adobe.flex.framework</groupId>
+                <artifactId>textLayout</artifactId>
+                <version>${flex.sdk.version}</version>
+                <type>swc</type>
+                <scope>compile</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.4</version>
+                    <configuration>
+                        <source>1.6</source>
+                        <target>1.6</target>
+                        <fork>true</fork>
+                        <meminitial>512m</meminitial>
+                        <maxmem>512m</maxmem>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-clean-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>2.5</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.1</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.12</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>2.3</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.2.2</version>
+                    <configuration>
+                        <!-- Not generating javadoc and source jars by default.  It consistently
+                                runs out of memory in fleetcommander.   So, for now, don't generate
+                                during a release. -->
+                        <useReleaseProfile>false</useReleaseProfile>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-scm-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.4</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>buildnumber-maven-plugin</artifactId>
+                    <version>1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-antrun-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.7</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <version>1.7</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <sourceDirectory>src</sourceDirectory>
+        <!-- <testSourceDirectory>src/test/flex</testSourceDirectory> -->
+        <!-- <finalName>minko</finalName> -->
+
+        <plugins>
+
+            <plugin>
+                <groupId>org.sonatype.flexmojos</groupId>
+                <artifactId>flexmojos-maven-plugin</artifactId>
+                <version>${flexmojos.version}</version>
+                <extensions>true</extensions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.adobe.flex</groupId>
+                        <artifactId>compiler</artifactId>
+                        <version>${flex.sdk.version}</version>
+                        <type>pom</type>
+                    </dependency>
+                </dependencies>
+<!--                 <executions>
+                    <execution>
+                        <id>GenerateSources</id>
+                        <goals>
+                            <goal>sources</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>GenerateDitaAsdoc</id>
+                        <goals>
+                            <goal>dita-asdoc</goal>
+                        </goals>
+                        <configuration>
+                            <dateInFooter>true</dateInFooter>
+                            <docAllNamespaces>true</docAllNamespaces>
+                            <lenient>true</lenient>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>GenerateAsdoc</id>
+                        <goals>
+                            <goal>asdoc</goal>
+                        </goals>
+                        <configuration>
+                            <dateInFooter>true</dateInFooter>
+                            <docAllNamespaces>true</docAllNamespaces>
+                            <lenient>true</lenient>
+                        </configuration>
+                    </execution>
+                </executions> -->
+                <configuration>
+
+
+                    <!-- <storepass>secret</storepass> -->
+                    <swfVersion>${flex.swf.version}</swfVersion>
+                    <targetPlayer>${flex.player.version.major}.${flex.player.version.minor}</targetPlayer>
+                    <dumpConfigAttach>true</dumpConfigAttach>
+                    <debug>false</debug>
+                    <incremental>false</incremental>
+                    <!-- <skipTest>true</skipTest> -->
+                    <quick>false</quick>
+                    <sizeReportAttach>false</sizeReportAttach>
+                    <headlessServer>true</headlessServer>
+                    <metadata>
+                      <date>1/1/1970 0:00 AM</date>
+                      <publishers>
+                        <publisher>CAT</publisher>
+                      </publishers>
+                      <title>Minko 3D Framework</title>
+                    </metadata>
+                    <doc>false</doc>
+                    <coverage>false</coverage>
+                    <fonts>
+                      <advancedAntiAliasing>true</advancedAntiAliasing>
+                      <localFontsSnapshot>${basedir}/fonts.ser</localFontsSnapshot>
+                      <managers>
+                          <manager>flash.fonts.AFEFontManager</manager>
+                          <manager>flash.fonts.JREFontManager</manager>
+                          <manager>flash.fonts.BatikFontManager</manager>
+                          <manager>flash.fonts.CFFFontManager</manager>
+                      </managers>
+                      <maxCachedFonts>20</maxCachedFonts>
+                      <maxGlyphsPerFace>1000</maxGlyphsPerFace>
+                    </fonts>
+                    <optimize>true</optimize>
+                    <reduce>true</reduce>
+                    <staticLinkRuntimeSharedLibraries>false</staticLinkRuntimeSharedLibraries>
+                    <compilerWarnings>
+                        <show-actionscript-warnings>false</show-actionscript-warnings>
+                        <show-unused-type-selector-warnings>false</show-unused-type-selector-warnings>
+                        <show-binding-warnings>false</show-binding-warnings>
+                        <report-invalid-styles-as-warnings>false</report-invalid-styles-as-warnings>
+                    </compilerWarnings>
+                </configuration>
+            </plugin>
+        </plugins>
+
+    </build>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>flex-framework</artifactId>
+            <type>pom</type>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>playerglobal</artifactId>
+            <classifier>${flex.player.version.major}.${flex.player.version.minor}</classifier>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>framework</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>flash-integration</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>rpc</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>mx</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>spark</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>sparkskins</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.adobe.flex.framework</groupId>
+            <artifactId>textLayout</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <!-- Flex unit -->
+<!--         <dependency>
+            <groupId>com.adobe.flexunit</groupId>
+            <artifactId>flexunit</artifactId>
+            <type>swc</type>
+            <classifier>flex_4.1.0.16076</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>flexunit</groupId>
+            <artifactId>uilistener</artifactId>
+            <type>swc</type>
+            <classifier>4.1.0.16076</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>flexunit</groupId>
+            <artifactId>fluint-extensions</artifactId>
+            <type>swc</type>
+            <classifier>4.1.0.16076</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>flexunit</groupId>
+            <artifactId>hamcrest</artifactId>
+            <type>swc</type>
+        </dependency>
+
+        <dependency>
+            <groupId>mockolate</groupId>
+            <artifactId>mockolate</artifactId>
+            <type>swc</type>
+        </dependency> -->
+    </dependencies>
+
+</project>

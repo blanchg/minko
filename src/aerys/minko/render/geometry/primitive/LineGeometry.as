@@ -39,7 +39,7 @@ package aerys.minko.render.geometry.primitive
 		
 		private var _numLines	: uint;
 		
-		private var _vstream	: VertexStream;
+		protected var _vstream	: VertexStream;
 		private var _istream	: IndexStream;
 		
 		public function LineGeometry()

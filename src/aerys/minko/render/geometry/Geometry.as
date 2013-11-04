@@ -56,10 +56,10 @@ package aerys.minko.render.geometry
 		private var _firstIndex		: uint				= 0;
 		private var _numTriangles	: int				= -1;
 
-		private var _boundingSphere	: BoundingSphere	= null;
-		private var _boundingBox	: BoundingBox		= null;
+		protected var _boundingSphere	: BoundingSphere	= null;
+        protected var _boundingBox	: BoundingBox		= null;
 		
-		private var _bulkUpdate		: Boolean			= false;
+        protected var _bulkUpdate		: Boolean			= false;
 		
 		private var _changed		: Signal;
 		

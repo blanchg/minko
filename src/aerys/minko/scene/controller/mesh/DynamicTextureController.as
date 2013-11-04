@@ -1,5 +1,10 @@
 package aerys.minko.scene.controller.mesh
 {
+	import flash.display.BitmapData;
+	import flash.display.DisplayObject;
+	import flash.geom.Matrix;
+	import flash.geom.Rectangle;
+	
 	import aerys.minko.render.Viewport;
 	import aerys.minko.render.resource.texture.TextureResource;
 	import aerys.minko.scene.controller.EnterFrameController;
@@ -40,6 +45,7 @@ package aerys.minko.scene.controller.mesh
 		private var _texture				: TextureResource;
 		
 		private var _lastDraw	            : Number;
+		private var _updateRequired:Boolean;
 		
 		/**
 		 * Create a new DynamicTextureController.
@@ -66,7 +72,8 @@ package aerys.minko.scene.controller.mesh
 				throw new Error("Invalid argument: source must be of type DisplayObject or BitmapData.");
 			
 			_source = source;
-			_texture = new TextureResource();
+			_texture = new TextureResource(width, height);
+            _texture.contextLost.add(onContextLost);
 			_framerate = framerate;
 			_mipMapping = mipMapping;
 			_propertyName = propertyName;
@@ -76,7 +83,13 @@ package aerys.minko.scene.controller.mesh
 			_data = new DataProvider();
 			_data.setProperty(propertyName, _texture);
 		}
-		
+        
+        private function onContextLost(texture:TextureResource):void
+        {
+            _bitmapData = null;
+            update();
+        }
+        
 		public function get forceBitmapDataClear():Boolean
 		{
 			return _forceBitmapDataClear;
@@ -116,7 +129,7 @@ package aerys.minko.scene.controller.mesh
 														   target	: BitmapData,
 														   time		: Number) : void
 		{
-			if (!_lastDraw || time - _lastDraw > 1000. / _framerate)
+			if (_updateRequired || (_framerate > 0 && (!_lastDraw || time - _lastDraw > 1000. / _framerate)))
 			{
 				_lastDraw = time;
 				
@@ -160,5 +173,10 @@ package aerys.minko.scene.controller.mesh
 					0
 				);
 		}
+        
+        public function update():void
+        {
+            _updateRequired = true;
+        }
 	}
 }

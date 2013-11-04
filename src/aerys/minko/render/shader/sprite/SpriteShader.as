@@ -47,7 +47,7 @@ package aerys.minko.render.shader.sprite
 		
 		override protected function getVertexPosition() : SFloat
 		{
-			var vertexXY	: SFloat	= vertexXY.xy;
+			var vertexXY	: SFloat	= this.vertexXY.xy;
 		
 			_uv = multiply(add(vertexXY, 0.5), float2(1, -1));
 			
