@@ -21,9 +21,9 @@
             16 doesn't
             17 doesn't
         -->
-        <flex.swf.version>14</flex.swf.version>
+        <flex.swf.version>18</flex.swf.version>
         <flex.player.version.major>11</flex.player.version.major>
-        <flex.player.version.minor>4</flex.player.version.minor>
+        <flex.player.version.minor>8</flex.player.version.minor>
     </properties>
     <prerequisites>
       <maven>3.0.3</maven>
@@ -33,12 +33,12 @@
         <repository>
             <id>connectedworksite-maven-repo</id>
             <name>connectedworksite-maven-repo-releases</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-releases-local</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/libs-releases-local</url>
         </repository>
         <snapshotRepository>
             <id>connectedworksite-maven-repo</id>
             <name>connectedworksite-maven-repo-snapshots</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-snapshots-local</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/libs-snapshots-local</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -49,13 +49,13 @@
             </snapshots>
             <id>central</id>
             <name>libs-releases</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-releases</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/libs-releases</url>
         </repository>
         <repository>
             <snapshots />
             <id>snapshots</id>
             <name>libs-snapshots</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/libs-snapshots</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/libs-snapshots</url>
         </repository>
     </repositories>
 
@@ -66,13 +66,13 @@
             </snapshots>
             <id>central</id>
             <name>plugins-releases</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/plugins-releases</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/plugins-releases</url>
         </pluginRepository>
         <pluginRepository>
             <snapshots />
             <id>snapshots</id>
             <name>plugins-snapshots</name>
-            <url>http://mn26ldsvn.ap.cat.com:8080/artifactory/plugins-snapshots</url>
+            <url>http://minestarsvn.ap.cat.com:8081/artifactory/plugins-snapshots</url>
         </pluginRepository>
     </pluginRepositories>
 

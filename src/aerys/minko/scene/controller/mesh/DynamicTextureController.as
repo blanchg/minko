@@ -45,7 +45,7 @@ package aerys.minko.scene.controller.mesh
 		private var _texture				: TextureResource;
 		
 		private var _lastDraw	            : Number;
-		private var _updateRequired:Boolean;
+		private var _updateRequired:Boolean = true;
 		
 		/**
 		 * Create a new DynamicTextureController.
@@ -72,7 +72,8 @@ package aerys.minko.scene.controller.mesh
 				throw new Error("Invalid argument: source must be of type DisplayObject or BitmapData.");
 			
 			_source = source;
-			_texture = new TextureResource(width, height);
+			_texture = new TextureResource();
+            _texture.name = "DynamicTextureController";
             _texture.contextLost.add(onContextLost);
 			_framerate = framerate;
 			_mipMapping = mipMapping;
@@ -86,7 +87,9 @@ package aerys.minko.scene.controller.mesh
         
         private function onContextLost(texture:TextureResource):void
         {
-            _bitmapData = null;
+            if (_tmpBitmapData)
+                _tmpBitmapData.dispose();
+            _tmpBitmapData = null;
             update();
         }
         
@@ -103,6 +106,7 @@ package aerys.minko.scene.controller.mesh
 		override protected function targetAddedHandler(ctrl		: EnterFrameController,
 													   target	: ISceneNode) : void
 		{
+            trace("DTC Target added: " + target.name);
 			super.targetAddedHandler(ctrl, target);
 			
 			if (target is Scene)
@@ -116,6 +120,7 @@ package aerys.minko.scene.controller.mesh
 		override protected function targetRemovedHandler(ctrl	: EnterFrameController,
 														 target	: ISceneNode) : void
 		{
+            trace("DTC Target removed: " + target.name);
 			super.targetRemovedHandler(ctrl, target);
 			
 			if (target is Scene)
@@ -132,6 +137,7 @@ package aerys.minko.scene.controller.mesh
 			if (_updateRequired || (_framerate > 0 && (!_lastDraw || time - _lastDraw > 1000. / _framerate)))
 			{
 				_lastDraw = time;
+                _updateRequired = false;
 				
 				if (_source is DisplayObject)
 				    updateFromDisplayObject();
@@ -145,7 +151,8 @@ package aerys.minko.scene.controller.mesh
 			var sourceDisplayObject : DisplayObject = _source as DisplayObject;
 
 			refreshTempBitmapData();
-
+            
+            trace("DTC update: " + sourceDisplayObject.name);
 			_tmpBitmapData.draw(sourceDisplayObject, _matrix);
 			_texture.setContentFromBitmapData(_tmpBitmapData, _mipMapping);
 		}
@@ -167,7 +174,8 @@ package aerys.minko.scene.controller.mesh
 		{
 			if (!_tmpBitmapData)
 				_tmpBitmapData = new BitmapData(_source.width, _source.height);
-			else if (_forceBitmapDataClear)
+			
+            if (_forceBitmapDataClear)
 				_tmpBitmapData.fillRect(
 					new Rectangle(0, 0, _tmpBitmapData.width, _tmpBitmapData.height),
 					0
@@ -177,6 +185,14 @@ package aerys.minko.scene.controller.mesh
         public function update():void
         {
             _updateRequired = true;
+        }
+        
+        public function updateSize():void
+        {
+            _updateRequired = true;
+            if (_tmpBitmapData)
+                _tmpBitmapData.dispose();
+            _tmpBitmapData = null;
         }
 	}
 }

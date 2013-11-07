@@ -66,7 +66,7 @@ package aerys.minko.scene.node
 							   properties 	: Object 	= null,
 							   depth 		: Number 	= 0)
 		{
-			super(GEOM, new Material(EFFECT, properties));
+			super(new BillboardsGeometry(1), new Material(EFFECT, properties));
 			
             this.properties.setProperties({
                 x : x,
