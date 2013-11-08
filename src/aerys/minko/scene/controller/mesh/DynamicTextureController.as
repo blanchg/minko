@@ -106,7 +106,6 @@ package aerys.minko.scene.controller.mesh
 		override protected function targetAddedHandler(ctrl		: EnterFrameController,
 													   target	: ISceneNode) : void
 		{
-            trace("DTC Target added: " + target.name);
 			super.targetAddedHandler(ctrl, target);
 			
 			if (target is Scene)
@@ -120,7 +119,6 @@ package aerys.minko.scene.controller.mesh
 		override protected function targetRemovedHandler(ctrl	: EnterFrameController,
 														 target	: ISceneNode) : void
 		{
-            trace("DTC Target removed: " + target.name);
 			super.targetRemovedHandler(ctrl, target);
 			
 			if (target is Scene)
@@ -152,7 +150,6 @@ package aerys.minko.scene.controller.mesh
 
 			refreshTempBitmapData();
             
-            trace("DTC update: " + sourceDisplayObject.name);
 			_tmpBitmapData.draw(sourceDisplayObject, _matrix);
 			_texture.setContentFromBitmapData(_tmpBitmapData, _mipMapping);
 		}

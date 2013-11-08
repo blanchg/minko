@@ -10,8 +10,6 @@ package aerys.minko.render.material.basic
 	public class BasicMaterial extends Material
 	{
 		public static const DEFAULT_NAME			: String		= 'BasicMaterial';
-		public static const DEFAULT_BASIC_SHADER	: BasicShader	= new BasicShader();
-		public static const DEFAULT_EFFECT			: Effect		= new Effect(DEFAULT_BASIC_SHADER);
 		
 		public function get blending() : uint
 		{
@@ -222,7 +220,7 @@ package aerys.minko.render.material.basic
 		
 		public function BasicMaterial(properties : Object = null, effect : Effect = null, name : String = DEFAULT_NAME)
 		{
-			super(effect || DEFAULT_EFFECT, properties, name);
+			super(effect || new Effect(new BasicShader()), properties, name);
 		}
 		
 		override public function clone() : IDataProvider

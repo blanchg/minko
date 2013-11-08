@@ -82,10 +82,7 @@ package aerys.minko.render.resource
 		
 		public function release() : void
 		{
-			--_numUses;    
-            if (!_numUses) {
-                dispose();
-            }
+			--_numUses;
 		}
 		
 		public function prepareContext(context 		: Context3DResource,
@@ -121,10 +118,7 @@ package aerys.minko.render.resource
 		{
 			_disposed = true;
 			if (_nativeProgram)
-            {
 				_nativeProgram.dispose();
-                _nativeProgram = null;
-            }
 		}
 	}
 }

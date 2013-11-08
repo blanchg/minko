@@ -2,7 +2,6 @@ package aerys.minko.scene.node
 {
 	import aerys.minko.ns.minko_scene;
 	import aerys.minko.render.Effect;
-	import aerys.minko.render.geometry.Geometry;
 	import aerys.minko.render.geometry.primitive.BillboardsGeometry;
 	import aerys.minko.render.material.Material;
 	import aerys.minko.render.shader.sprite.SpriteShader;
@@ -11,8 +10,6 @@ package aerys.minko.scene.node
 	
 	public final class Sprite extends Mesh
 	{
-		private static const EFFECT	: Effect	= new Effect(new SpriteShader());
-		private static const GEOM	: Geometry	= new BillboardsGeometry(1);
 		
 //		override public function get x() : Number
 //		{
@@ -66,7 +63,7 @@ package aerys.minko.scene.node
 							   properties 	: Object 	= null,
 							   depth 		: Number 	= 0)
 		{
-			super(new BillboardsGeometry(1), new Material(EFFECT, properties));
+			super(new BillboardsGeometry(1), new Material(new Effect(new SpriteShader()), properties));
 			
             this.properties.setProperties({
                 x : x,

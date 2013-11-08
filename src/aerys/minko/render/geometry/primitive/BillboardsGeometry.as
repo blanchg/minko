@@ -48,8 +48,8 @@ package aerys.minko.render.geometry.primitive
 				);
 			}
 			
-			setVertexStream(VertexStream.fromVector(StreamUsage.STATIC, BILLBOARD_FORMAT, vertices), 0);
-			indexStream = IndexStream.fromVector(StreamUsage.STATIC, indices);
+			setVertexStream(VertexStream.fromVector(StreamUsage.READ, BILLBOARD_FORMAT, vertices), 0);
+			indexStream = IndexStream.fromVector(StreamUsage.READ, indices);
 		}
 	}
 }
