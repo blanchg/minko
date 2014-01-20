@@ -952,6 +952,15 @@ package aerys.minko.render.geometry
 							  vertexStreamUsage : uint = 3,
 							  indexStreamUsage 	: uint = 3) : Geometry
 		{
+            fastMerge(geometry, vertexStreamUsage, indexStreamUsage);
+            postMerge();
+            return this;
+        }
+        
+        public function fastMerge(geometry			: Geometry,
+                                  vertexStreamUsage : uint = 3,
+                                  indexStreamUsage 	: uint = 3) : void
+        {
 			var vertexStreamsToConcat 	: Vector.<IVertexStream> = new <IVertexStream>[];
 			
 			if (numVertexStreams != 0 && geometry.numVertexStreams != 0
@@ -997,13 +1006,14 @@ package aerys.minko.render.geometry
 				_indexStream = indexStream.concat(geometry._indexStream, 0, 0, indexOffset);
 			else
 				_indexStream = indexStream;
-			
-			updateBoundingVolumes();
-			
-			_changed.execute(this);
 
-			return this;				
 		}
+        
+        public function postMerge():void
+        {
+            updateBoundingVolumes();
+            _changed.execute(this);
+        }
 		
 		/**
 		 * Flip (multiply by -1) the normals of the geometry.
