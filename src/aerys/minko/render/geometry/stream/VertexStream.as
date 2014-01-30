@@ -175,6 +175,14 @@ package aerys.minko.render.geometry.stream
 			if (length % format.numBytesPerVertex != 0)
 				throw new Error('Incompatible format/length.');
 		}
+        
+        public function setMinMax(minimum:Vector.<Number>, maximum:Vector.<Number>) : void
+        {
+            _minimum = minimum;
+            _maximum = maximum;
+            
+            _boundsChanged.execute(this);
+        }
 		
 		public function updateMinMax(forceReadUsage : Boolean = false) : void
 		{

@@ -50,15 +50,15 @@ package aerys.minko.type.math
 			
 			initialize();
 		}
+        
+        private function centerChangedHandler(center : Vector4) : void
+        {
+            throw new Error('This property is read-only.');
+        }
 		
 		private function initialize() : void
 		{
 			_center.changed.add(centerChangedHandler);
-		}
-		
-		private function centerChangedHandler(center : Vector4) : void
-		{
-			throw new Error('This property is read-only.');
 		}
 
 		/**

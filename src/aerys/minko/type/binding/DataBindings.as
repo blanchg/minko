@@ -184,7 +184,7 @@ package aerys.minko.type.binding
 									callback	: Function) : void
 		{
 			_bindingNameToChangedSignal[bindingName] ||= new Signal(
-				'DataBindings.changed[' + bindingName + ']'
+				bindingName
 			);
 			
 			Signal(_bindingNameToChangedSignal[bindingName]).add(callback);

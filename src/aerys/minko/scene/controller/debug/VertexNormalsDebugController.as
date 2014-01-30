@@ -50,7 +50,6 @@ package aerys.minko.scene.controller.debug
 				return ;
 			
 			var vertices : VertexIterator = new VertexIterator(target.geometry.getVertexStream(0));
-			
 			for each (var vertex : VertexReference in vertices)
 			{
 				var normal : Mesh = new Mesh(
@@ -62,10 +61,11 @@ package aerys.minko.scene.controller.debug
 						new Vector4(vertex.nx, vertex.ny, vertex.nz),
 						new Vector4(vertex.x, vertex.y, vertex.z)
 					)
-					.prependTranslation(0., 0., 0.05)
-					.prependScale(0.01, 0.01, 0.1)
+					.prependTranslation(0., 0., 0.005)
+					.prependScale(0.001, 0.001, 0.01)
 				
 				target.parent.addChild(normal);
+                
 			}
 		}
 		

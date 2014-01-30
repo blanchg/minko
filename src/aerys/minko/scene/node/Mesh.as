@@ -10,6 +10,7 @@ package aerys.minko.scene.node
 	import aerys.minko.type.binding.DataProvider;
 	import aerys.minko.type.enum.DataProviderUsage;
 	import aerys.minko.type.enum.FrustumCulling;
+	import aerys.minko.type.math.Matrix4x4;
 	import aerys.minko.type.math.Ray;
 
 	use namespace minko_scene;
@@ -261,7 +262,8 @@ package aerys.minko.scene.node
 		
 		public function cast(ray            : Ray,
                              maxDistance    : Number    = Number.POSITIVE_INFINITY,
-                             tag            : uint      = 1) : Number
+                             tag            : uint      = 1,
+                             worldToLocal   : Matrix4x4 = null) : Number
 		{
 			if (!(_tag & tag))
 				return -1;
@@ -272,7 +274,7 @@ package aerys.minko.scene.node
 			
 			return _ctrl.geometry.boundingBox.testRay(
 				ray,
-				getWorldToLocalTransform(),
+				getWorldToLocalTransform(false, worldToLocal),
 				maxDistance
 			);
 		}
