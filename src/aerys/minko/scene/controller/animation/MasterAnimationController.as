@@ -175,11 +175,13 @@ package aerys.minko.scene.controller.animation
 		
 		minko_animation function updateAnimations(scene : Scene, time : Number) : void
 		{
+			_updateOneTime = false;
+			
 			var numAnimations : uint = _animations.length;
 			for (var animationId : uint = 0; animationId < numAnimations; ++animationId)
 			{
 				_animations[animationId].setCurrentTime(currentTime);
-				_animations[animationId].update(scene, time);
+				_animations[animationId].update(time, scene);
 			}
 		}
 		

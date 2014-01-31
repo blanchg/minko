@@ -96,7 +96,10 @@ package aerys.minko.type.binding
 		
 		public function getProperty(name : String) : *
 		{
-			return _nameToProperty[name];
+			if (_nameToProperty)
+				return _nameToProperty[name];
+			else
+				return null;
 		}
 		
 		public function setProperty(name : String, newValue : Object) : DataProvider
@@ -222,7 +225,10 @@ package aerys.minko.type.binding
 		
 		public function propertyExists(name : String) : Boolean
 		{
-			return _descriptor.hasOwnProperty(name);
+			if (_descriptor)
+				return _descriptor.hasOwnProperty(name);
+			else
+				return false;
 		}
 		
 		public function invalidate() : DataProvider

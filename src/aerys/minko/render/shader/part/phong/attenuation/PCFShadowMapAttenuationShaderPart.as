@@ -5,6 +5,7 @@ package aerys.minko.render.shader.part.phong.attenuation
 	import aerys.minko.render.shader.Shader;
 	import aerys.minko.render.shader.part.phong.LightAwareShaderPart;
 	import aerys.minko.render.shader.part.phong.depth.LinearDepthFromLightShaderPart;
+	import aerys.minko.scene.data.LightDataProvider;
 	import aerys.minko.scene.node.light.PointLight;
 	import aerys.minko.type.enum.SamplerDimension;
 	import aerys.minko.type.enum.SamplerFiltering;
@@ -39,6 +40,7 @@ package aerys.minko.render.shader.part.phong.attenuation
 			
 			// retrieve depthmap matrix
 			var lightType			: uint		= getLightProperty(lightId, 'type');
+						
 			var depthMap	: SFloat = getLightTextureParameter(
 				lightId,
 				'shadowMap', 
@@ -53,7 +55,7 @@ package aerys.minko.render.shader.part.phong.attenuation
 			var currentDepth 		: SFloat 	= _depthShaderPart.getDepthForAttenuation(lightId, fsWorldPosition);
 			var precomputedDepth	: SFloat 	= unpack(sampleTexture(depthMap, uv));
 			var curDepthSubBias		: SFloat 	= min(subtract(1, shadowBias), currentDepth);
-			var noShadows			: SFloat 	= lessEqual(curDepthSubBias, add(shadowBias, precomputedDepth));
+			var noShadows			: SFloat 	= lessThan(curDepthSubBias, add(shadowBias, precomputedDepth));
 
 			if (lightType == PointLight.LIGHT_TYPE)
 				return coloredShadow(lightId, noShadows);
@@ -61,22 +63,22 @@ package aerys.minko.render.shader.part.phong.attenuation
 			var quality				: uint		= getLightProperty(lightId, 'shadowQuality');
 			if (quality != ShadowMappingQuality.HARD)
 			{
-				var invertSize	: SFloat			= divide(
-					getLightParameter(lightId, 'shadowSpread', 1),
-					getLightParameter(lightId, 'shadowMapSize', 1)
-				);
+				var invertSize	: Number = getLightProperty(lightId, 'shadowSpread', 1) / getLightProperty(lightId, 'shadowMapSize', 2048);
 				
 				var uvs 		: Vector.<SFloat>	= new <SFloat>[];
 				var uvDelta		: SFloat;
+				
+				var uvXYXY : SFloat = uv.xyxy;
+				
 				
 				if (quality > ShadowMappingQuality.LOW)
 				{
 					uvDelta = multiply(float3(-1, 0, 1), invertSize);
 					uvs.push(
-						add(uv.xyxy, uvDelta.xxxy),	// (-1, -1), (-1,  0)
-						add(uv.xyxy, uvDelta.xzyx),	// (-1,  1), ( 0, -1)
-						add(uv.xyxy, uvDelta.yzzx),	// ( 0,  1), ( 1, -1)
-						add(uv.xyxy, uvDelta.zyzz)	// ( 1,  0), ( 1,  1)
+						add(uvXYXY, uvDelta.xxxy),//XXXY),	// (-1, -1), (-1,  0)
+						add(uvXYXY, uvDelta.xzyx),	// (-1,  1), ( 0, -1)
+						add(uvXYXY, uvDelta.yzzx),	// ( 0,  1), ( 1, -1)
+						add(uvXYXY, uvDelta.zyzz)	// ( 1,  0), ( 1,  1)
 					);
 				}
 				
@@ -84,8 +86,8 @@ package aerys.minko.render.shader.part.phong.attenuation
 				{
 					uvDelta = multiply(float3(-2, 0, 2), invertSize);
 					uvs.push(
-						add(uv.xyxy, uvDelta.xyyx),	// (-2, 0), (0, -2)
-						add(uv.xyxy, uvDelta.yzzy)	// ( 0, 2), (2, 0)
+						add(uvXYXY, uvDelta.xyyx),//XYYX),	// (-2, 0), (0, -2)
+						add(uvXYXY, uvDelta.yzzy)	// ( 0, 2), (2, 0)
 					);
 				}
 				
@@ -93,10 +95,10 @@ package aerys.minko.render.shader.part.phong.attenuation
 				{
 					uvDelta = multiply(float4(-2, -1, 1, 2), invertSize);
 					uvs.push(
-						add(uv.xyxy, uvDelta.xzyw),	// (-2,  1), (-1,  2)
-						add(uv.xyxy, uvDelta.zwwz),	// ( 1,  2), ( 2,  1)
-						add(uv.xyxy, uvDelta.wyzx),	// ( 2, -1), ( 1, -2)
-						add(uv.xyxy, uvDelta.xyyx)	// (-2, -1), (-1, -2)
+						add(uvXYXY, uvDelta.xyzw),//XZYW),	// (-2,  1), (-1,  2)
+						add(uvXYXY, uvDelta.zwwz),//ZWWZ),	// ( 1,  2), ( 2,  1)
+						add(uvXYXY, uvDelta.wyzx),//WYZX),	// ( 2, -1), ( 1, -2)
+						add(uvXYXY, uvDelta.xyyx)	// (-2, -1), (-1, -2)
 					);
 				}
 				
@@ -110,16 +112,18 @@ package aerys.minko.render.shader.part.phong.attenuation
 						unpack(sampleTexture(depthMap, uvs[sampleId + 1].zw))
 					);
 					
-					var localNoShadows : SFloat = lessEqual(curDepthSubBias, add(shadowBias, precomputedDepth));
+					var localNoShadows : SFloat = lessThan(curDepthSubBias, add(shadowBias, precomputedDepth));
 					noShadows.incrementBy(dotProduct4(localNoShadows, float4(1, 1, 1, 1)));
 				}
 				
 				noShadows.scaleBy(1 / (2 * numSamples + 1));
 			}
 
-			noShadows = coloredShadow(lightId, noShadows);
+			//noShadows = coloredShadow(lightId, noShadows);
+			var uvX : SFloat = uv.x;
+			var uvY : SFloat = uv.y;
 			
-			var insideShadow 	: SFloat = multiply(multiply(lessThan(uv.x, 1), greaterThan(uv.x, 0)), multiply(lessThan(uv.y, 1), greaterThan(uv.y, 0)));
+			var insideShadow 	: SFloat = multiply(multiply(lessThan(uvX, 1), greaterEqual(uvX, 0)), multiply(lessThan(uvY, 1), greaterEqual(uvY, 0)));
 			var outsideShadow	: SFloat = subtract(1, insideShadow);
 			
 			return add(noShadows.scaleBy(insideShadow), outsideShadow);

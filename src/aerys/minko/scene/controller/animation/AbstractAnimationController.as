@@ -6,6 +6,7 @@ package aerys.minko.scene.controller.animation
 	import aerys.minko.scene.controller.AbstractController;
 	import aerys.minko.scene.controller.EnterFrameController;
 	import aerys.minko.scene.node.ISceneNode;
+	import aerys.minko.scene.node.Scene;
 	import aerys.minko.type.Signal;
 	
 	use namespace minko_animation;
@@ -24,7 +25,7 @@ package aerys.minko.scene.controller.animation
 		protected var _previousTime				: int;
 		protected var _totalTime				: int;
 		
-		private function get loopBeginTime():int
+		minko_animation function get loopBeginTime():int
 		{
 			if (!_reverse)
 				return _loopBeginTime;
@@ -32,7 +33,7 @@ package aerys.minko.scene.controller.animation
 				return _loopEndTime;
 		}
 		
-		private function get loopEndTime():int
+		minko_animation function get loopEndTime():int
 		{
 			if (!_reverse)
 				return _loopEndTime;
@@ -43,6 +44,7 @@ package aerys.minko.scene.controller.animation
 		protected var _timeFunction				: Function;
 		
 		protected var _lastTime					: int;
+		protected var _lastTimeUntransformed	: int;
 		
 		protected var _labelNames				: Vector.<String>;
 		protected var _labelTimes				: Vector.<Number>;
@@ -63,6 +65,12 @@ package aerys.minko.scene.controller.animation
 		
 		public function set reverse(value:Boolean):void
 		{
+			if (_reverse != value)
+			{
+				_lastTime = -_lastTime;
+				_lastTimeUntransformed = -_lastTimeUntransformed;
+			}
+			
 			_reverse = value;
 			updateNextLabel(_currentTime);
 		}
@@ -79,6 +87,22 @@ package aerys.minko.scene.controller.animation
 		
 		public function set timeFunction(value : Function) : void
 		{
+			if (value != null && _timeFunction == null)
+			{
+				_lastTime = value(_lastTime);
+			}
+			else if (_timeFunction != null)
+			{
+				var time		: int = _reverse ? -getTimer() : getTimer();
+				var prevTime	: int = _timeFunction(time);
+				var prevDeltaT	: int = prevTime - _lastTime;
+				
+				if (value != null)
+					time = value(time);
+				
+				_lastTime = time - prevDeltaT;
+			}
+			
 			_timeFunction = value;
 		}
 		
@@ -338,7 +362,7 @@ package aerys.minko.scene.controller.animation
 			}
 			
 			_isPlaying = false;
-			_updateOneTime 	= true;
+			//_updateOneTime 	= true;
 			updateLastTime();
 			_stopped.execute(this);
 			
@@ -434,7 +458,7 @@ package aerys.minko.scene.controller.animation
 						return true;
 					}
 				}
-			}				
+			}
 			
 			_lastTime = time;
 			
@@ -605,6 +629,13 @@ package aerys.minko.scene.controller.animation
 			_looping		= from._looping;
 			_nextLabelIds	= from._nextLabelIds.concat();
 			_updateOneTime	= from._updateOneTime;
+			return this;
+		}
+		
+		public function updateNow() : IAnimationController
+		{
+			_updateOneTime = true;
+			sceneEnterFrameHandler(null, null, null, getTimer());
 			return this;
 		}
 	}

@@ -34,7 +34,6 @@ package aerys.minko.scene.controller
 		
 		private static const PICKING_MAP			: BitmapData	= new BitmapData(1, 1, true, 0);
 		private static const SHADER					: Shader		= new PickingShader();
-		private static const ID_INCREMENT			: uint			= 1;
 		
 		private static const EFFECT_USE_COUNTER		: Dictionary	= new Dictionary(true);
 		
@@ -56,44 +55,59 @@ package aerys.minko.scene.controller
 		private static const EVENT_MIDDLE_DOWN		: uint 			= 1 << 14;
 		private static const EVENT_MIDDLE_UP		: uint 			= 1 << 15;
 		
-        private var _technique          : uint;
-		private var _pickingRate		: Number;
+		private static var _disableAntiAliasing		: Boolean		= false;
+		private static var _previousAntiAliasing	: int			= 0;
 		
-		private var _dispatchers		: Dictionary;
+        private var _technique          	: uint;
+		private var _pickingRate			: Number;
+		
+		private var _dispatchers			: Dictionary;
         
-		private var _lastPickingTime	: uint;
-		private var _useHandCursor		: Boolean;
+		private var _lastPickingTime		: uint;
+		private var _useHandCursor			: Boolean;
 		
-		private var _toDispatch			: uint;
-		private var _sceneData			: DataProvider;
-		private var _meshData			: Dictionary;
-		private var _pickingIdToMesh	: Array;
+		private var _toDispatch				: uint;
+		private var _sceneData				: DataProvider;
+		private var _meshData				: Dictionary;
+		private var _pickingIdToMesh		: Array;
 		
-		private var _mouseX				: Number;
-		private var _mouseY				: Number;
-		private var _mouseWheelDelta	: Number;
-		private var _oldCursor			: String;
+		private var _mouseX					: Number;
+		private var _mouseY					: Number;
+		private var _mouseWheelDelta		: Number;
+		private var _oldCursor				: String;
 		
-		private var _currentMouseOver	: Mesh;
-		private var _lastMouseOver		: Mesh;
+		private var _currentMouseOver		: Mesh;
+		private var _lastMouseOver			: Mesh;
 		
-		private var _mouseClick			: Signal;
-		private var _mouseDoubleClick	: Signal;
-		private var _mouseDown			: Signal;
-		private var _mouseMove			: Signal;
-		private var _mouseUp			: Signal;
-		private var _mouseWheel			: Signal;
-		private var _mouseRollOver		: Signal;
-		private var _mouseRollOut		: Signal;
-		private var _mouseRightClick	: Signal;
-		private var _mouseRightDown		: Signal;
-		private var _mouseRightUp		: Signal;
-		private var _mouseMiddleClick	: Signal;
-		private var _mouseMiddleDown	: Signal;
-		private var _mouseMiddleUp		: Signal;
+		private var _mouseClick				: Signal;
+		private var _mouseDoubleClick		: Signal;
+		private var _mouseDown				: Signal;
+		private var _mouseMove				: Signal;
+		private var _mouseUp				: Signal;
+		private var _mouseWheel				: Signal;
+		private var _mouseRollOver			: Signal;
+		private var _mouseRollOut			: Signal;
+		private var _mouseRightClick		: Signal;
+		private var _mouseRightDown			: Signal;
+		private var _mouseRightUp			: Signal;
+		private var _mouseMiddleClick		: Signal;
+		private var _mouseMiddleDown		: Signal;
+		private var _mouseMiddleUp			: Signal;
 		
-		private var _tag				: uint;
+		private var _tag					: uint;
 		
+		private var _pixelPickingIncrement	: uint;
+		
+		public static function get disableAntiAliasing():Boolean
+		{
+			return _disableAntiAliasing;
+		}
+
+		public static function set disableAntiAliasing(value:Boolean):void
+		{
+			_disableAntiAliasing = value;
+		}
+
         public function get pickingRate() : Number
         {
             return _pickingRate;
@@ -182,15 +196,17 @@ package aerys.minko.scene.controller
 			return _mouseRollOut;
 		}
 		
-		public function PickingController(pickingTechnique  : uint      = 1,
-                                          pickingRate       : Number    = 15.,
-										  tag				: uint		= 1)
+		public function PickingController(pickingTechnique  	: uint      = 1,
+                                          pickingRate       	: Number    = 15.,
+										  tag					: uint		= 1, 
+										  pixelPickingIncrement	: uint		= 1)
 		{
             super();
             
-            _technique		= pickingTechnique;
-			_pickingRate	= pickingRate;
-			_tag			= tag;
+            _technique				= pickingTechnique;
+			_pickingRate			= pickingRate;
+			_tag					= tag;
+			_pixelPickingIncrement	= pixelPickingIncrement;
             
 			initialize();
 		}
@@ -266,15 +282,20 @@ package aerys.minko.scene.controller
 			if (!_dispatchers[viewport])
 				bindDefaultInputs(viewport);
 			
+			_previousAntiAliasing = viewport.antiAliasing;
+			
 			// toggle picking pass
 			if (time - _lastPickingTime > 1000. / _pickingRate && _toDispatch != EVENT_NONE)
 			{
                 // raycast
                 if (_technique & PickingTechnique.RAYCASTING)
                 {
-                    var ray : Ray       = null;
-                    var hit : Boolean   = false;
-                    
+                    var ray					: Ray       = null;
+                    var hit					: Boolean   = false;
+                    var minDistance			: Number	= Number.POSITIVE_INFINITY;				
+					
+					var currentMouseOver	: Mesh		= _currentMouseOver;
+					
                     for (var targetId : uint = 0; targetId < numTargets && !hit; ++targetId)
                     {
                         var target  : ISceneNode    = getTarget(targetId);
@@ -292,11 +313,13 @@ package aerys.minko.scene.controller
                             if (target is Mesh)
                             {
 								var mesh : Mesh = target as Mesh;
-                                if (mesh.cast(ray, Number.POSITIVE_INFINITY, _tag) > 0.)
+								var distance : Number = mesh.cast(ray, Number.POSITIVE_INFINITY, _tag);
+                                if (distance > 0.)
                                 {
-									if (!(_technique & PickingTechnique.PIXEL_PICKING))
+									if (!(_technique & PickingTechnique.PIXEL_PICKING) && distance < minDistance)
 									{
-										_lastMouseOver = _currentMouseOver;
+										minDistance = distance;
+										_lastMouseOver = currentMouseOver;
 										_currentMouseOver = mesh;
 									}
                                     hit = true;
@@ -311,8 +334,12 @@ package aerys.minko.scene.controller
                                 {
 									if (!(_technique & PickingTechnique.PIXEL_PICKING))
 									{
-										_lastMouseOver = _currentMouseOver;
-										_currentMouseOver = hits[0] as Mesh;
+										_lastMouseOver = currentMouseOver;
+										if (Mesh(hits[0]).cast(ray, Number.POSITIVE_INFINITY, _tag) < minDistance)
+										{
+											minDistance = distance
+											_currentMouseOver = hits[0] as Mesh;
+										}
 									}
                                     hit = true;
                                 }
@@ -371,6 +398,9 @@ package aerys.minko.scene.controller
 												context		: Context3DResource,
 												backBuffer	: RenderTarget) : void
 		{
+			if (_disableAntiAliasing)
+				context.configureBackBuffer(backBuffer.width, backBuffer.height, 0, true);
+			
 			context.clear(0, 0, 0, 0);
 		}
 		
@@ -387,6 +417,12 @@ package aerys.minko.scene.controller
 				((color >> 8) & 0xff) / 255.,
 				(color & 0xff) / 255.
 			);
+			
+			if (_disableAntiAliasing)
+			{
+				context.configureBackBuffer(backBuffer.width, backBuffer.height, _previousAntiAliasing, true);
+				context.clear(0, 0, 0, 0);
+			}
 			
 			SHADER.enabled = false;
 		}
@@ -409,7 +445,7 @@ package aerys.minko.scene.controller
 			{
 				var mesh	: Mesh	= _pickingIdToMesh[pixelColor & 0xFFFFFF];
 				
-				_currentMouseOver	= mesh && (mesh.tag & _tag) != 0 ? mesh : null;
+				_currentMouseOver = mesh && (mesh.tag & _tag) != 0 ? mesh : null;
 			}
 			else
 				_currentMouseOver = null; // wrong antialiasing color or nothing got picked
@@ -574,7 +610,7 @@ package aerys.minko.scene.controller
 		
 		private function addMesh(mesh : Mesh) : void
 		{
-			_pickingId += ID_INCREMENT;
+			_pickingId += _pixelPickingIncrement;
 			_pickingIdToMesh[_pickingId] = mesh;
 			
 			var meshData : DataProvider = new DataProvider(
