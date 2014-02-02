@@ -4,7 +4,7 @@
     <groupId>io.minko</groupId>
     <artifactId>minko</artifactId>
     <packaging>swc</packaging>
-    <version>2.0-SNAPSHOT</version>
+    <version>CAT.2.0-SNAPSHOT</version>
     <name>Minko 3D Framework</name>
 
     <properties>
