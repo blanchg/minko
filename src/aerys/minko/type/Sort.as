@@ -154,7 +154,7 @@ package aerys.minko.type
                 TMP_INTS[k] = int(TMP_INTS[k]) + int(TMP_INTS[int(k - 1)]);
             
             var hold		: Number 	= Number(values[nmax]);
-            var holdState 	: Object 	= items[nmax];
+            var holdState 	: ISceneNode 	= items[nmax];
             
             values[nmax] = Number(values[0]);
             values[0] = hold;
@@ -162,7 +162,7 @@ package aerys.minko.type
             items[0] = holdState;
             
             var flash		: Number	= 0.;
-            var flashState	: Object	= null;
+            var flashState	: ISceneNode	= null;
             
             j = 0;
             k = int(m - 1);
