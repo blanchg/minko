@@ -58,6 +58,8 @@ package aerys.minko.type.math
 		/**
 		 * http://www.siggraph.org/education/materials/HyperGraph/raytrace/rtinter3.htm
 		 * http://gitorious.org/dimension/dimension/blobs/master/libdimension/prtree.c#line490
+         * 
+         * Replaced with http://people.csail.mit.edu/amy/papers/box-jgt.pdf
 		 *  
 		 * @param ray
 		 * @param transform
@@ -71,21 +73,46 @@ package aerys.minko.type.math
 			var localOrigin 	: Vector4	= ray.origin;
 			var localDirection	: Vector4	= ray.direction;
 			
-			if (transform)
+			var ox		: Number;
+			var oy		: Number;
+			var oz		: Number;
+			var dx		: Number;
+			var dy		: Number;
+			var dz		: Number;
+			var negativeX	: Boolean;
+			var negativeY	: Boolean;
+			var negativeZ	: Boolean;
+            
+			if (transform && !transform.isIdentity())
 			{
 				localOrigin = transform.transformVector(ray.origin, TMP_VECTOR4_1);
 				
 				localDirection = transform.deltaTransformVector(ray.direction, TMP_VECTOR4_2);
 				localDirection.normalize();
-			}
-
-			var ox		: Number	= localOrigin.x;
-			var oy		: Number	= localOrigin.y;
-			var oz		: Number	= localOrigin.z;
-			
-			var dx		: Number	= 1.0 / localDirection.x;
-			var dy		: Number	= 1.0 / localDirection.y;
-			var dz		: Number	= 1.0 / localDirection.z;
+                
+                ox	= localOrigin.x;
+                oy	= localOrigin.y;
+                oz	= localOrigin.z;
+                
+                dx	= 1.0 / localDirection.x;
+                dy	= 1.0 / localDirection.y;
+                dz	= 1.0 / localDirection.z;
+                
+                negativeX = dx < 0;
+                negativeY = dy < 0;
+                negativeZ = dz < 0;
+			} else {
+                ox = ray.origin.x;
+                oy = ray.origin.y;
+                oz = ray.origin.z;
+                dx = ray._inverseDirection.x;
+                dy = ray._inverseDirection.y;
+                dz = ray._inverseDirection.z;
+                
+                negativeX = ray._negativeX;
+                negativeY = ray._negativeY;
+                negativeZ = ray._negativeZ;
+            }
 			
 			var minX	: Number	= _min.x;
 			var minY	: Number	= _min.y;
@@ -97,24 +124,49 @@ package aerys.minko.type.math
 			var tx1		: Number	= (minX - ox) * dx;
 			var tx2		: Number	= (maxX - ox) * dx;
 			
-			var min		: Number	= tx1 < tx2 ? tx1 : tx2;
-			var max		: Number	= tx1 > tx2 ? tx1 : tx2;
-			var tmin	: Number	= min;
-			var tmax	: Number	= max;
+			var min		: Number;
+			var max		: Number;
+			var tmin	: Number;
+			var tmax	: Number;
+            
+            if (negativeX)
+            {
+                min	= tx2;
+                max	= tx1;
+            } else {
+                min	= tx1;
+                max	= tx2;
+            }
+            tmin	= min;
+            tmax	= max;
 			
 			var ty1		: Number	= (minY - oy) * dy;
 			var ty2		: Number	= (maxY - oy) * dy;
 			
-			min = ty1 < ty2 ? ty1 : ty2;
-			max = ty1 > ty2 ? ty1 : ty2;
+            if (negativeY)
+            {
+                min = ty2;
+                max = ty1;
+            } else {
+    			min = ty1;
+    			max = ty2;
+            }
 			tmin = tmin > min ? tmin : min;
 			tmax = tmax < max ? tmax : max;
 			
 			var tz1		: Number	= (minZ - oz) * dz;
 			var tz2		: Number	= (maxZ - oz) * dz;
 			
-			min = tz1 < tz2 ? tz1 : tz2;
-			max = tz1 > tz2 ? tz1 : tz2;
+            if (negativeZ)
+            {
+                min = tz2;
+                max = tz1;
+            } else {
+                min = tz1;
+                max = tz2;
+//    			min = tz1 < tz2 ? tz1 : tz2;
+//    			max = tz1 > tz2 ? tz1 : tz2;
+            }
 			tmin = tmin > min ? tmin : min;
 			tmax = tmax < max ? tmax : max;
 			
@@ -175,7 +227,7 @@ package aerys.minko.type.math
 		
 		public function toString() : String
 		{
-			return '[BoundingBox=(' + _min.toString() + '), (' + _max.toString() + ')]';
+			return '[BoundingBox=(' + _min.toString() + ', ' + _max.toString() + ')]';
 		}
 		
 	}

@@ -299,7 +299,7 @@ package aerys.minko.scene.controller
                     for (var targetId : uint = 0; targetId < numTargets && !hit; ++targetId)
                     {
                         var target  : ISceneNode    = getTarget(targetId);
-                        var scene   : Scene         = target.root as Scene;
+                        scene         = target.root as Scene;
                         
                         if (scene && scene.activeCamera)
                         {

@@ -425,14 +425,14 @@ package aerys.minko.scene.node
 		 * @return 
 		 * 
 		 */
-		public function cast(ray : Ray, maxDistance : Number = Number.POSITIVE_INFINITY, tag : uint = 1, worldToLocal:Matrix4x4 = null) : Vector.<ISceneNode>
+		public function cast(ray : Ray, maxDistance : Number = Number.POSITIVE_INFINITY, tag : uint = 1, worldToLocal:Matrix4x4 = null, out:Vector.<ISceneNode> = null) : Vector.<ISceneNode>
 		{
 			var meshes		: Vector.<ISceneNode> 	= getDescendantsByType(Mesh);
 			var numMeshes	: uint					= meshes.length;
-			var hit			: Array					= [];
+			var hit			: Vector.<ISceneNode>	= out || new Vector.<ISceneNode>();
 			var depth		: Vector.<Number>		= new <Number>[];
 			var numItems	: uint					= 0;
-			
+            
 			for (var i : uint = 0; i < numMeshes; ++i)
 			{
 				var mesh 		: Mesh		= meshes[i] as Mesh;
@@ -446,10 +446,12 @@ package aerys.minko.scene.node
 				}
 			}
 			
+            hit.length = numItems;
+            
 			if (numItems > 1)
-				Sort.flashSort(depth, hit, numItems);
+				Sort.flashSortVector(depth, hit, numItems);
 			
-			return Vector.<ISceneNode>(hit);
+			return hit;
 		}
 		
 		override minko_scene function cloneNode() : AbstractSceneNode

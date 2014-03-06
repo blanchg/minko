@@ -19,6 +19,9 @@ package aerys.minko.type.binding
 			
 		private var _nameToProperty		: Object;
 		private var _propertyToNames	: Dictionary;
+        
+        private var _propertyCount      : uint;
+        private var _indexToName        : Vector.<String>;
 		
 		public function get usage() : uint
 		{
@@ -73,6 +76,8 @@ package aerys.minko.type.binding
 			_propertyRemoved = new Signal('DataProvider.propertyRemoved');
 			_nameToProperty = {};
 			_propertyToNames = new Dictionary();
+            _propertyCount = 0;
+            _indexToName = new Vector.<String>();
 						
 			setProperties(properties);
 		}
@@ -93,7 +98,17 @@ package aerys.minko.type.binding
 			
 			return true;
 		}
-		
+        
+        override flash_proxy function nextName(i:int):String { 
+            return _indexToName[i]; 
+        } 
+        override flash_proxy function nextNameIndex(i:int):int { 
+            return i < _propertyCount-1 ? i + 1 : 0; 
+        } 
+        override flash_proxy function nextValue(i:int):* { 
+            return _nameToProperty[_indexToName[i]]; 
+        } 
+        
 		public function getProperty(name : String) : *
 		{
 			if (_nameToProperty)
@@ -125,9 +140,13 @@ package aerys.minko.type.binding
 			_nameToProperty[name]	= newValue;
 			
 			if (propertyAdded)
+            {
 				_propertyAdded.execute(this, name, dataDescriptor[name], newValue);
-			else
+                _indexToName[_propertyCount] = name;
+                _propertyCount++;
+            } else {
 				_propertyChanged.execute(this, name, dataDescriptor[name], newValue);
+            }
 			
 			return this;
 		}
@@ -194,6 +213,15 @@ package aerys.minko.type.binding
 				
 				delete _descriptor[name];
 				delete _nameToProperty[name];
+                for (var i:int = 0; i < _propertyCount; i++) 
+                {
+                    if (_indexToName[i] == name)
+                    {
+                        _indexToName.splice(i,1);
+                        break;
+                    }
+                }
+                _propertyCount--;
 				
 				if (oldMonitoredValue != null)
 					unwatchProperty(name, oldMonitoredValue);

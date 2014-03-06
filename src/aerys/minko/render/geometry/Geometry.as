@@ -1260,34 +1260,35 @@ package aerys.minko.render.geometry
 				{
 					var uvStream : VertexStream = vertexStream.getStreamByComponent(VertexComponent.UV);
 					
-					if (!uvStream)
-						throw new Error('Missing vertex component: u, v');
-					
-					var uvData 			: ByteArray = uvStream == xyzStream ? xyzData : uvStream.lock();
-					var uvVertexSize 	: uint 		= uvStream.format.numBytesPerVertex;
-					var uvOffset 		: uint 		= uvStream.format.getBytesOffsetForComponent(VertexComponent.UV);
-					
-					indicesData.position = triangleIndice * 2;
-					
-					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
-					var u0  : Number = uvData.readFloat();
-					var v0  : Number = uvData.readFloat();
-					
-					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
-					var u1  : Number = uvData.readFloat();
-					var v1  : Number = uvData.readFloat();
-					
-					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
-					var u2  : Number = uvData.readFloat();
-					var v2  : Number = uvData.readFloat();
-					
-					lambda.z = 1 - lambda.x - lambda.y;
-					
-					hitUV.x = lambda.z * u0 + lambda.x*u1 + lambda.y * u2;
-					hitUV.y = lambda.z * v0 + lambda.x*v1 + lambda.y * v2;
-					
-					if (uvStream != xyzStream)
-						uvStream.unlock(false);
+					if (uvStream)
+                    {
+    					
+    					var uvData 			: ByteArray = uvStream == xyzStream ? xyzData : uvStream.lock();
+    					var uvVertexSize 	: uint 		= uvStream.format.numBytesPerVertex;
+    					var uvOffset 		: uint 		= uvStream.format.getBytesOffsetForComponent(VertexComponent.UV);
+    					
+    					indicesData.position = triangleIndice * 2;
+    					
+    					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
+    					var u0  : Number = uvData.readFloat();
+    					var v0  : Number = uvData.readFloat();
+    					
+    					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
+    					var u1  : Number = uvData.readFloat();
+    					var v1  : Number = uvData.readFloat();
+    					
+    					uvData.position = indicesData.readUnsignedShort() * uvVertexSize + uvOffset;
+    					var u2  : Number = uvData.readFloat();
+    					var v2  : Number = uvData.readFloat();
+    					
+    					lambda.z = 1 - lambda.x - lambda.y;
+    					
+    					hitUV.x = lambda.z * u0 + lambda.x*u1 + lambda.y * u2;
+    					hitUV.y = lambda.z * v0 + lambda.x*v1 + lambda.y * v2;
+    					
+    					if (uvStream != xyzStream)
+    						uvStream.unlock(false);
+                    }
 				}
 				
 				if (hitNormal)

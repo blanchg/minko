@@ -853,6 +853,23 @@ package aerys.minko.type.math
 			
 			return this;
 		}
+        
+        final public function isIdentity():Boolean
+        {
+            _matrix.copyRawDataTo(TMP_VECTOR);
+            for (var i:int = TMP_VECTOR.length - 1; i >= 0; i--) 
+            {
+                var v:Number = TMP_VECTOR[i];
+                if (v == 0) {
+                    if (i != 0 && i != 5 && i != 10 && i != 15)
+                        continue;
+                } else if (v == 1) {
+                    if (i == 0 || i == 5 || i == 10 || i == 15)
+                        continue;
+                }
+            }
+            return false;
+        }
 		
         final public function compareTo(matrix : Matrix4x4) : Boolean
 		{
