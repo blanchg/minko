@@ -97,7 +97,8 @@ package aerys.minko.scene.controller
 		private var _tag					: uint;
 		
 		private var _pixelPickingIncrement	: uint;
-		
+		private var _enabled                :Boolean = true;
+        
 		public static function get disableAntiAliasing():Boolean
 		{
 			return _disableAntiAliasing;
@@ -107,7 +108,17 @@ package aerys.minko.scene.controller
 		{
 			_disableAntiAliasing = value;
 		}
-
+        
+        public function get enabled():Boolean
+        {
+            return _enabled;
+        }
+        
+        public function set enabled(value:Boolean):void
+        {
+            _enabled = value;
+        }
+        
         public function get pickingRate() : Number
         {
             return _pickingRate;
@@ -279,10 +290,15 @@ package aerys.minko.scene.controller
 														   destination	: BitmapData,
 														   time			: Number) : void
 		{
+            
+            if (!_enabled)
+                return;
+            
 			if (!_dispatchers[viewport])
 				bindDefaultInputs(viewport);
 			
 			_previousAntiAliasing = viewport.antiAliasing;
+            
 			
 			// toggle picking pass
 			if (time - _lastPickingTime > 1000. / _pickingRate && _toDispatch != EVENT_NONE)
@@ -423,7 +439,6 @@ package aerys.minko.scene.controller
 				context.configureBackBuffer(backBuffer.width, backBuffer.height, _previousAntiAliasing, true);
 				context.clear(0, 0, 0, 0);
 			}
-			
 			SHADER.enabled = false;
 		}
 		
