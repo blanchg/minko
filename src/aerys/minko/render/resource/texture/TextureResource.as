@@ -127,11 +127,11 @@ package aerys.minko.render.resource.texture
 			{
 				TMP_MATRIX.identity();
 				TMP_MATRIX.scale(w / bitmapWidth, h / bitmapHeight);
-				_bitmapData.draw(bitmapData, TMP_MATRIX);
+				_bitmapData.draw(bitmapData, TMP_MATRIX, null, null, null, true);
 			}
 			else
 			{
-				_bitmapData.draw(bitmapData);
+				_bitmapData.draw(bitmapData, null, null, null, null, true);
 			}
 			
 			if (_texture
